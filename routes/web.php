@@ -14,4 +14,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Route::get('/aaa', 'RandomPostController@GetRandomPost');
-Route::get('/aaa', 'RandomPostController@GetRandomPost');
+Route::get('/aaa', 'RandomPostController@RandomPost');

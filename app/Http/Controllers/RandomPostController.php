@@ -5,29 +5,38 @@ namespace App\Http\Controllers;
 // use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Http\Services\TranslateService;
-use phpDocumentor\Reflection\PseudoTypes\False_;
+use App\Http\Services\GetRandomPostService;
+use App\Http\Services\PhraseAdjusmentService;
 
 class RandomPostController extends Controller
 {
-  public function GetRandomPost(TranslateService $trans)
+
+  private $TransService;
+  private $PostService;
+  private $PhraseService;
+
+  public function __construct(
+    TranslateService $TransService,
+    GetRandomPostService $PostService,
+    PhraseAdjusmentService $PhraseService
+  ) {
+    $this->TransService = $TransService;
+    $this->PostService = $PostService;
+    $this->PhraseService = $PhraseService;
+  }
+
+  public function RandomPost()
   {
-    $response = Http::get('https://www.reddit.com/r/todayilearned/random.json');
-    $responseBody = json_decode($response->getBody());
-    $formatted_data = $responseBody[0]->data->children[0]->data;
-    $prefix = substr($formatted_data->title, 0, 4);
 
-    if ($prefix == "TIL ") {
-      $title = substr($formatted_data->title, 4);
-    } else {
-      $title = $formatted_data->title;
+    $rand_post = $this->PostService->getPost();
+    $trans_post = $this->TransService->translate($rand_post);
+
+    if ($trans_post == False) {
+      echo "TODO: vai redirecionar para uma página pedindo pra tentar novamente (erro na API)";
     }
 
-    $transData = $trans->translate($title);
 
-    if ($transData == False) {
-      echo "vai redirecionar para uma página pedindo pra tentar novamente";
-    }
 
-    return compact('transData');
+    return $trans_post;
   }
 }

@@ -4,13 +4,14 @@ namespace App\Http\Services;
 
 class TranslateService
 {
-  public function translate($title)
+  public function translate($json_post)
   {
+    $post = json_decode($json_post);
 
     $curl = curl_init();
 
     curl_setopt_array($curl, [
-      CURLOPT_URL => "https://microsoft-translator-text.p.rapidapi.com/translate?to=pt-br&api-version=3.0&from=en&profanityAction=NoAction",
+      CURLOPT_URL => config('app.TRANS_URL'),
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_FOLLOWLOCATION => true,
       CURLOPT_ENCODING => "",
@@ -20,7 +21,7 @@ class TranslateService
       CURLOPT_CUSTOMREQUEST => "POST",
       CURLOPT_POSTFIELDS => "[\r
         {\r
-          \"Text\": \"" . $title . "\"\r
+          \"Text\": \"" . $post->title . "\"\r
         }\r
     ]",
       CURLOPT_HTTPHEADER => [
@@ -45,9 +46,13 @@ class TranslateService
       return false;
     }
 
-    $obj_title = $responseBody[0]->translations[0]->text;
-    $trans_title = strval($obj_title);
+    $obj_text = $responseBody[0]->translations[0]->text;
+    $trans_text = strval($obj_text);
 
-    return compact('trans_title');
+    $json_text = [
+      'text' => $trans_text,
+    ];
+
+    return $json_text;
   }
 }
