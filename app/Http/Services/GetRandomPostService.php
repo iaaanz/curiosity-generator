@@ -4,7 +4,6 @@ namespace App\Http\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Illuminate\Http\Client\Response;
 
 class GetRandomPostService
 {
