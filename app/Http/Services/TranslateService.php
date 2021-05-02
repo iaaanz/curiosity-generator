@@ -6,8 +6,7 @@ class TranslateService
 {
   public function translate($json_post)
   {
-    $post = json_decode($json_post);
-
+    $post = $json_post->getData();
     $curl = curl_init();
 
     curl_setopt_array($curl, [
@@ -21,7 +20,7 @@ class TranslateService
       CURLOPT_CUSTOMREQUEST => "POST",
       CURLOPT_POSTFIELDS => "[\r
         {\r
-          \"Text\": \"" . $post->title . "\"\r
+          \"Text\": \"" . $post->formatted_text . "\"\r
         }\r
     ]",
       CURLOPT_HTTPHEADER => [
@@ -47,12 +46,11 @@ class TranslateService
     }
 
     $obj_text = $responseBody[0]->translations[0]->text;
-    $trans_text = strval($obj_text);
 
     $json_text = [
-      'text' => $trans_text,
+      'text' => $obj_text,
     ];
 
-    return $json_text;
+    return response()->json($json_text);
   }
 }

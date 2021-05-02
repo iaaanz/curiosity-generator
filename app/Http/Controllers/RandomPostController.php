@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-// use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use App\Http\Services\TranslateService;
 use App\Http\Services\GetRandomPostService;
-use App\Http\Services\PhraseAdjusmentService;
+use App\Http\Services\PhraseAdjustmentService;
 
 class RandomPostController extends Controller
 {
-
   private $TransService;
   private $PostService;
   private $PhraseService;
@@ -18,7 +15,7 @@ class RandomPostController extends Controller
   public function __construct(
     TranslateService $TransService,
     GetRandomPostService $PostService,
-    PhraseAdjusmentService $PhraseService
+    PhraseAdjustmentService $PhraseService
   ) {
     $this->TransService = $TransService;
     $this->PostService = $PostService;
@@ -27,16 +24,20 @@ class RandomPostController extends Controller
 
   public function RandomPost()
   {
-
     $rand_post = $this->PostService->getPost();
     $trans_post = $this->TransService->translate($rand_post);
 
     if ($trans_post == False) {
-      echo "TODO: vai redirecionar para uma página pedindo pra tentar novamente (erro na API)";
+      return response()->json([
+        'error' => 'Erro na API'
+      ]);
     }
 
+    $filtered_phrase = $this->PhraseService->phraseAdjusment($trans_post);
 
+    $rand_post = $rand_post->getData();
+    $rand_post->final_text = $filtered_phrase->getData()->final_text;
 
-    return $trans_post;
+    return response()->json($rand_post);
   }
 }
